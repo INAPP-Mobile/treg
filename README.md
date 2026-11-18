@@ -23,14 +23,14 @@ Built for the Superdesign team, live at [treg.to](https://treg.to) — anyone ca
 > succeed. **GitHub OAuth is the recommended door — no mail vendor needed.**
 >
 > 1. Create a GitHub OAuth App (<https://github.com/settings/developers> → **New OAuth App**) with
->    Authorization callback URL `https://<your deployment domain>/auth/github/callback`.
+>    Authorization callback URL `https://{your deployment domain}/auth/github/callback`.
 > 2. Fill the two `TREG_GITHUB_*` variables in the deploy form.
 > 3. (Optional) Google OAuth or email OTP via Resend (`TREG_RESEND_API_KEY`, verified from-domain)
 >    are also exposed.
 > 4. Leave `TREG_PUBLIC_URL` as auto-filled from `system.domain` unless you put a custom domain in front.
 > 5. The entrypoint **mints a persistent Fernet key on the `treg-data` volume** on first boot and
 >    runs `treg upgrade` (idempotent schema/catalog migrations) before serving — no manual pre-step.
-> 6. Visit `<deploy domain>` → `Start free` → pick the **GitHub** door on the login page.
+> 6. Visit `{deploy domain}` → `Start free` → pick the **GitHub** door on the login page.
 
 Variables on the deploy form: `TREG_PUBLIC_URL` (pre-filled), `TREG_GITHUB_CLIENT_ID` /
 `TREG_GITHUB_CLIENT_SECRET`, and optional Google + Resend. The storage variables
@@ -106,7 +106,7 @@ treg resources list --provider fishaudio --kind voice
 With your own Fish key, requests remain an unrestricted, unmetered upstream relay and Fish owns the
 account boundary.
 
-Catalog tool inputs are described by `treg catalog get <id>`. Tools marked `strict_query` reject undeclared or repeated query parameters, unsupported values and request bodies.
+Catalog tool inputs are described by `treg catalog get {id}`. Tools marked `strict_query` reject undeclared or repeated query parameters, unsupported values and request bodies.
 
 Your token identifies you on every call (`X-Treg-Token` header) and is the same for all tools.
 Discover what your team has shared: `treg tool ls` · check credential health: `treg health`.
@@ -186,7 +186,7 @@ free of the balance rather than duplicating them. An endpoint treg has no publis
 serve one capability, `treg catalog search` shows them side by side with prices; **choosing is
 yours** — treg does not silently pick or fail over between providers for you. (When treg's own
 account for a provider is out it may serve the *same* endpoint through a treg-owned relay account,
-disclosed on the response; a team can opt out.) The exception you opt into: `treg.<capability>` routed endpoints, where treg picks the provider for you and names it. For common jobs (scraping a page, web search, Google results, finding an email) start with the routed endpoint, such as `treg.web.extract` or `treg.web.search`, rather than a provider you remember by name. On `treg.people.email.find` and `treg.people.phone.find`, `X-Treg-Route-Verify: true` also checks the found address or number in the same call, as its own charge, and says what the check found.
+disclosed on the response; a team can opt out.) The exception you opt into: `treg.{capability}` routed endpoints, where treg picks the provider for you and names it. For common jobs (scraping a page, web search, Google results, finding an email) start with the routed endpoint, such as `treg.web.extract` or `treg.web.search`, rather than a provider you remember by name. On `treg.people.email.find` and `treg.people.phone.find`, `X-Treg-Route-Verify: true` also checks the found address or number in the same call, as its own charge, and says what the check found.
 
 ```bash
 treg balance          # credit left, calls in flight, recent spend
@@ -240,7 +240,7 @@ treg resolves the tool by host, injects the credential, and relays everything el
 ```
 Real request:   GET https://api.intercom.io/conversations?per_page=5
 Through treg:   GET https://treg.to/call/https://api.intercom.io/conversations?per_page=5
-                    header:  X-Treg-Token: <your token>
+                    header:  X-Treg-Token: {your token}
 ```
 
 Or the CLI shorthand — and `treg calls` for the audit log:
@@ -289,8 +289,8 @@ treg skill install seo-blog-writer      # writes into ./.claude/skills/  (--all 
 ```bash
 # multi-credential tool (e.g. google-ads: OAuth bearer + a developer-token header)
 treg tool add google-ads --base-url https://googleads.googleapis.com \
-  --bind "secret=<oauth-id>,injector=oauth" \
-  --bind "secret=<dev-id>,name=developer-token,format={secret}"
+  --bind "secret={oauth-id},injector=oauth" \
+  --bind "secret={dev-id},name=developer-token,format={secret}"
 
 # one skill, step by step
 treg skill init --dir ./my-skill          # drafts treg.json (guesses base_url, finds secrets)
@@ -318,8 +318,8 @@ and skill belongs to the active org. Roles: **owner / admin / member / viewer**.
 treg org create "Acme"                        # make a team, become owner
 treg org invite teammate@acme.com             # invite by email (pick role + tool access)
 treg org join <code> --email you@acme.com     # accept an invite (creates you if new)
-treg org ls | use <slug> | members            # switch orgs, see the roster
-treg org access <member> --tools a,b          # per-member tool access (admin+)
+treg org ls | use {slug} | members            # switch orgs, see the roster
+treg org access {member} --tools a,b          # per-member tool access (admin+)
 ```
 
 ## Going deeper
@@ -388,9 +388,9 @@ Environment variables (prefix `TREG_`, read from `.env`):
 | `TREG_SECRET_KEY`                         | *(empty)*                       | Fernet key for secrets-at-rest; empty → an ephemeral key is minted (secrets won't survive a restart)                                                                       |
 | `TREG_PUBLIC_URL`                         | `https://treg.to`  | treg's public base, used to build the OAuth callback URI                                                                                                                   |
 | `TREG_SESSION_SECRET`                     | *(empty)*                       | signs the dashboard session cookie; falls back to `TREG_SECRET_KEY`. Set a real value in prod                                                                              |
-| `TREG_GITHUB_CLIENT_ID` / `_SECRET`       | *(empty)*                       | GitHub OAuth sign-in (callback `<public_url>/auth/github/callback`); empty hides the button                                                                                |
-| `TREG_GOOGLE_CLIENT_ID` / `_SECRET`       | *(empty)*                       | Google OAuth sign-in (redirect `<public_url>/auth/google/callback`); empty hides the button                                                                                |
-| `TREG_INSTAGRAM_CLIENT_ID` / `_SECRET`    | *(empty)*                       | Instagram App ID and secret for direct Instagram Login (redirect `<public_url>/oauth/callback`)                                                                           |
+| `TREG_GITHUB_CLIENT_ID` / `_SECRET`       | *(empty)*                       | GitHub OAuth sign-in (callback `{public_url}/auth/github/callback`); empty hides the button                                                                                |
+| `TREG_GOOGLE_CLIENT_ID` / `_SECRET`       | *(empty)*                       | Google OAuth sign-in (redirect `{public_url}/auth/google/callback`); empty hides the button                                                                                |
+| `TREG_INSTAGRAM_CLIENT_ID` / `_SECRET`    | *(empty)*                       | Instagram App ID and secret for direct Instagram Login (redirect `{public_url}/oauth/callback`)                                                                           |
 | `TREG_META_CLIENT_ID` / `_SECRET`         | *(empty)*                       | Meta app credentials for Facebook Pages, Meta Ads, and optional Instagram `page-tools`                                                                                     |
 | `TREG_OAUTH_REVIEW_PENDING`               | `instagram-login,page-messages` | Comma-separated registry review keys whose capabilities must remain gated; hosted review state is maintained privately.                                                   |
 | `TREG_RESEND_API_KEY` / `TREG_EMAIL_FROM` | *(empty)*                       | transactional email via Resend (OTP codes + invites); From must be a Resend-verified sender                                                                                |
